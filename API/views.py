@@ -3,7 +3,7 @@ from .models import Order, Product
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -17,6 +17,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def stats_list(request, metric, date_start, date_end):
     try:
         if metric == "price":

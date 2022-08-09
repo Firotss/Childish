@@ -1,4 +1,4 @@
-from API.serializers import OrderSerializer, ProductSerializer, CountSerializer
+from API.serializers import OrderSerializer, ProductSerializer, StatSerializer
 from .models import Order, Product
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
@@ -17,28 +17,17 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 @api_view(['GET'])
-def price_list(request, date_start, date_end):
+def stats_list(request, metric, date_start, date_end):
     try:
-        order = Order.objects.filter(Date__gt = date_start, Date__lt = date_end).annotate(
-            month=TruncMonth('Date')).values('month').annotate(value=Sum('Products')).values('month', 'value')
+        if metric == "price":
+            order = Order.objects.filter(Date__gt = date_start, Date__lt = date_end).annotate(
+                month=TruncMonth('Date')).values('month').annotate(value=Sum('Products__Price')).values('month', 'value')
+        elif metric == "count":
+            order = Order.objects.filter(Date__gt = date_start, Date__lt = date_end).annotate(
+                month=TruncMonth('Date')).values('month').annotate(value=Count('Products')).values('month', 'value')
     except Order.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = CountSerializer(order, many=True)
+        serializer = StatSerializer(order, many=True)
         return Response(serializer.data)
-
-@api_view(['GET'])
-def count_list(request, date_start, date_end):
-    try:
-        order = Order.objects.filter(Date__gt = date_start, Date__lt = date_end).annotate(
-            month=TruncMonth('Date')).values('month').annotate(value=Count('Products')).values('month', 'value')
-    except Order.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = CountSerializer(order, many=True)
-        return Response(serializer.data)
-
-
-   

@@ -12,21 +12,8 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'Title', 'Price']
 
-class PriceSerializer(serializers.ModelSerializer):
+class StatSerializer(serializers.ModelSerializer):
     value = serializers.DecimalField(max_digits=6, decimal_places=2, required = True)
-    month = serializers.DateField(required = True)
-
-    class Meta:
-        model = Order
-        fields = ['month', 'value']
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['month'] = instance["month"].strftime('%Y %b')
-        return representation
-
-class CountSerializer(serializers.ModelSerializer):
-    value = serializers.IntegerField(required = True)
     month = serializers.DateField(required = True)
 
     class Meta:
